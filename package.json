@@ -1,0 +1,11 @@
+{
+  "name": "cielo-monitor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Scott Hasbrouck",
+  "license": "ISC"
+}
