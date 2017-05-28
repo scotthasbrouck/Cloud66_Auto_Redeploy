@@ -3,7 +3,7 @@ var axios = require('axios');
 var twilio = require('twilio');
 
 
-const phones = [ process.env.PHONE ];
+const phones = [ process.env.PHONE1, process.env.PHONE2 ];
 const cloud66APIToken = process.env.C66_TOKEN;
 const TwilioSID = process.env.TWILIO_SID;
 const TwilioToken = process.env.TWILIO_TOKEN;
@@ -27,11 +27,13 @@ var cieloMonitor = new Monitor({
 });
 
 var sendSMS = function(message) {
-	client.messages.create({
-		body: message,
-		to: phones[0],
-		from: '+12678100051'
-	});
+	for (var i = 0; i < phone.length; i++) {
+		client.messages.create({
+			body: message,
+			to: phones[i],
+			from: '+12678100051'
+		});
+	}
 };
 
 var redeploy = function(id, profile) {
@@ -49,10 +51,10 @@ cieloMonitor.on('up', function(res) {
 	if (res.statusCode === 200) {
 		if (status !== 'UP') {
 			sendSMS('Cielo Production UP');
+			console.log('UP!');
 		}
 		status = 'UP';
 		deploying = false;
-		console.log('UP!');
 	}
 	else {
 		status = 'DOWN';
@@ -64,9 +66,9 @@ cieloMonitor.on('up', function(res) {
 cieloMonitor.on('down', function(res) {
 	if (status !== 'DOWN') {
 		sendSMS('Cielo Production DOWN');
+		console.log('DOWN! ' + res.statusMessage);
 	}
 	status = 'DOWN';
-	console.log('DOWN! ' + res.statusMessage);
 	redeploy(stack.id, stack.profile);
 });
 
