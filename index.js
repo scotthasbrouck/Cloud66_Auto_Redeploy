@@ -23,7 +23,7 @@ var deploying = false;
 
 var cieloMonitor = new Monitor({
 	website: process.env.WEBSITE,
-	interval: parseInt(process.env.INTERVAL, 10)
+	interval: 0.10
 });
 
 var sendSMS = function(message) {
