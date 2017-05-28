@@ -27,7 +27,7 @@ var cieloMonitor = new Monitor({
 });
 
 var sendSMS = function(message) {
-	for (var i = 0; i < phone.length; i++) {
+	for (var i = 0; i < phones.length; i++) {
 		client.messages.create({
 			body: message,
 			to: phones[i],
