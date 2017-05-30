@@ -36,14 +36,34 @@ var sendSMS = function(message) {
 	}
 };
 
+var getFormatedDate = function () {
+    var currentDate = new Date();
+    currentDate = currentDate.toISOString();
+    currentDate = currentDate.replace(/T/, ' ');
+    currentDate = currentDate.replace(/\..+/, '');
+    return currentDate;
+};
+
+var printStatus = function(message) {
+	console.log(message + "\nTime: " + getFormatedDate() + "\n");
+};
+
+
+var processError = function(res) {
+	if (status !== 'DOWN') {
+		sendSMS('Cielo Production DOWN');
+		printStatus('DOWN! Error: ' + res.statusMessage);
+	}
+	status = 'DOWN';
+	redeploy(stack.id, stack.profile);
+}
+
 var redeploy = function(id, profile) {
 	if (!deploying) {
 		deploying = true;
-		console.log('DEPLOYMENT STARTED');
+		printStatus('DEPLOYMENT STARTED');
 		sendSMS('Redeployment Triggered');
-		axios.post('https://app.cloud66.com/api/3/stacks/' + id + '/deployment_profiles/' + profile + '/deploy').then(function(res) {
-
-		});
+		axios.post('https://app.cloud66.com/api/3/stacks/' + id + '/deployment_profiles/' + profile + '/deploy').then(function(res) { });
 	}
 };
 
@@ -51,32 +71,22 @@ cieloMonitor.on('up', function(res) {
 	if (res.statusCode === 200) {
 		if (status !== 'UP') {
 			sendSMS('Cielo Production UP');
-			console.log('UP!');
+			printStatus("UP!");
 		}
 		status = 'UP';
 		deploying = false;
 	}
 	else {
 		status = 'DOWN';
-		console.log('DOWN ERROR! ' + res.statusCode);
+		printStatus('DOWN ERROR! ' + res.statusCode);
 		redeploy(stack.id, stack.profile);
 	}
 });
 
-cieloMonitor.on('down', function(res) {
-	if (status !== 'DOWN') {
-		sendSMS('Cielo Production DOWN');
-		console.log('DOWN! ' + res.statusMessage);
-	}
-	status = 'DOWN';
-	redeploy(stack.id, stack.profile);
-});
+cieloMonitor.on('down', processError);
 
-cieloMonitor.on('error', function(res) {
-	console.log('ERROR! ' + res.statusMessage);
-	cieloMonitor.stop();
-});
+cieloMonitor.on('error', processError);
 
 cieloMonitor.on('stop', function(res) {
-	console.log('monitoring stopped');
+	printStatus('monitoring stopped');
 });
