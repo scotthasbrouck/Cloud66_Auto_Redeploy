@@ -21,9 +21,11 @@ axios.defaults.headers.common['Authorization'] = "Bearer " + cloud66APIToken;
 var status = 'DOWN';
 var deploying = false;
 
+var INTERVAL = process.env.INTERVAL || 0.5;
+
 var cieloMonitor = new Monitor({
 	website: process.env.WEBSITE,
-	interval: 0.5
+	interval: parseInt(INTERVAL, 10);
 });
 
 var sendSMS = function(message) {
