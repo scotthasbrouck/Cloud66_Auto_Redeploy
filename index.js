@@ -28,11 +28,13 @@ var cieloMonitor = new Monitor({
 
 var sendSMS = function(message) {
 	for (var i = 0; i < phones.length; i++) {
+		/*
 		client.messages.create({
 			body: message,
 			to: phones[i],
 			from: '+12678100051'
 		});
+		*/
 	}
 };
 
@@ -62,8 +64,11 @@ var redeploy = function(id, profile) {
 	if (!deploying) {
 		deploying = true;
 		printStatus('DEPLOYMENT STARTED');
-		sendSMS('Redeployment Triggered');
-		axios.post('https://app.cloud66.com/api/3/stacks/' + id + '/deployment_profiles/' + profile + '/deploy').then(function(res) { });
+		sendSMS('Elastic Address Toggled');
+		axios.post('http://app.cloud66.com/api/3/elastic_addresses/' + process.env.ELASTIC_ADDRESS_ID).then(function(res) {
+			console.log(res);
+		});
+		// axios.post('https://app.cloud66.com/api/3/stacks/' + id + '/deployment_profiles/' + profile + '/deploy').then(function(res) { });
 	}
 };
 
