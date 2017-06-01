@@ -21,11 +21,11 @@ axios.defaults.headers.common['Authorization'] = "Bearer " + cloud66APIToken;
 var status = 'DOWN';
 var deploying = false;
 
-var INTERVAL = process.env.INTERVAL || 0.5;
+var INTERVAL = parseInt(process.env.INTERVAL || 0.5) / 60;
 
 var cieloMonitor = new Monitor({
 	website: process.env.WEBSITE,
-	interval: parseInt(INTERVAL, 10);
+	interval: INTERVAL
 });
 
 var sendSMS = function(message) {
@@ -65,9 +65,9 @@ var processError = function(res) {
 var redeploy = function(id, profile) {
 	if (!deploying) {
 		deploying = true;
-		printStatus('DEPLOYMENT STARTED');
+		printStatus('ELASTIC ADDRESS TOGGLED');
 		sendSMS('Elastic Address Toggled');
-		axios.post('http://app.cloud66.com/api/3/elastic_addresses/' + process.env.ELASTIC_ADDRESS_ID).then(function(res) {
+		axios.post('http://app.cloud66.com/api/3/elastic_addresses/' + process.env.ELASTIC_ADDRESS_ID + '/toggle').then(function(res) {
 			console.log(res);
 		});
 		// axios.post('https://app.cloud66.com/api/3/stacks/' + id + '/deployment_profiles/' + profile + '/deploy').then(function(res) { });
