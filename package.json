@@ -10,8 +10,9 @@
   "author": "Scott Hasbrouck",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.16.1",
+    "bluebird": "^3.5.0",
     "ping-monitor": "^0.1.6",
+    "request": "^2.81.0",
     "twilio": "^3.3.0"
   }
 }

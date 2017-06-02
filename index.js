@@ -1,7 +1,7 @@
 var Monitor = require('ping-monitor');
-var axios = require('axios');
+var request = require('request');
 var twilio = require('twilio');
-
+var B = require('bluebird');
 
 const phones = [ process.env.PHONE1, process.env.PHONE2 ];
 const cloud66APIToken = process.env.C66_TOKEN;
@@ -10,23 +10,23 @@ const TwilioToken = process.env.TWILIO_TOKEN;
 
 var client = new twilio(TwilioSID, TwilioToken);
 
-// production
-const stack = {
-	id: process.env.STACK_ID,
-	profile: process.env.STACK_PROFILE_ID
-};
-
-axios.defaults.headers.common['Authorization'] = "Bearer " + cloud66APIToken;
-
-var status = 'DOWN';
-var deploying = false;
-
 var INTERVAL = parseInt(process.env.INTERVAL || 0.5) / 60;
 
-var cieloMonitor = new Monitor({
-	website: process.env.WEBSITE,
-	interval: INTERVAL
-});
+console.log('Interval: ' + (INTERVAL * 60).toString() + ' seconds');
+
+var sites = [{
+	name: 'Cielo Production',
+	url: 'http://wildebeest.cielo-production-744542.c66.me/',
+	id: '0843b037b04448cb48db8b9253f0881c',
+	status: 'DOWN',
+	deploying: false
+}, {
+	name: 'Cielo Production Failover',
+	url: 'http://starling.cielo-production-failover.c66.me/',
+	id: 'd503cd7fcf917a0f321b384c7724a4b8',
+	status: 'DOWN',
+	deploying: false
+}];
 
 var sendSMS = function(message) {
 	for (var i = 0; i < phones.length; i++) {
@@ -53,47 +53,67 @@ var printStatus = function(message) {
 };
 
 
-var processError = function(res) {
-	if (status !== 'DOWN') {
-		sendSMS('Cielo Production DOWN');
-		printStatus('DOWN! Error: ' + res.statusMessage);
-	}
-	status = 'DOWN';
-	redeploy(stack.id, stack.profile);
-}
-
-var redeploy = function(id, profile) {
-	if (!deploying) {
-		deploying = true;
-		printStatus('ELASTIC ADDRESS TOGGLED');
-		sendSMS('Elastic Address Toggled');
-		axios.post('http://app.cloud66.com/api/3/elastic_addresses/' + process.env.ELASTIC_ADDRESS_ID + '/toggle').then(function(res) {
-			console.log(res);
-		});
-		// axios.post('https://app.cloud66.com/api/3/stacks/' + id + '/deployment_profiles/' + profile + '/deploy').then(function(res) { });
+var processError = function(site) {
+	var deploy = redeploy(site);
+	return function(res) {
+		if (site.status !== 'DOWN') {
+			sendSMS(site.name + ' DOWN');
+			printStatus(site.name + ' DOWN! Error: ' + res.statusMessage);
+		}
+		site.status = 'DOWN';
+		deploy();
 	}
 };
 
-cieloMonitor.on('up', function(res) {
-	if (res.statusCode === 200) {
-		if (status !== 'UP') {
-			sendSMS('Cielo Production UP');
-			printStatus("UP!");
+var redeploy = function(site) {
+	return function() {
+		if (!site.deploying) {
+			site.deploying = true;
+			printStatus(site.name + ' REDEPLOY TRIGGERED');
+			sendSMS(site.name + ' REDEPLOY TRIGGERED');
+			request({
+				url: 'https://app.cloud66.com/api/3/stacks/' + site.id + '/deployments',
+				method: 'POST',
+				headers: {
+					'Authorization': "Bearer " + cloud66APIToken
+				}
+			}, function(err, res, body) {
+				console.log(body);
+			});
 		}
-		status = 'UP';
-		deploying = false;
-	}
-	else {
-		status = 'DOWN';
-		printStatus('DOWN ERROR! ' + res.statusCode);
-		redeploy(stack.id, stack.profile);
-	}
+	};
+};
+
+B.all(sites.map(function(site) {
+	var monitor = new Monitor({
+		website: site.url,
+		interval: INTERVAL
+	});
+	var deploy = redeploy(site);
+	monitor.on('up', function(res) {
+		if (res.statusCode === 200) {
+			if (site.status !== 'UP') {
+				sendSMS(site.name + ' UP');
+				printStatus(site.name + ' UP!');
+			}
+			site.status = 'UP';
+			site.deploying = false;
+		}
+		else {
+			site.status = 'DOWN';
+			printStatus(site.name + ' DOWN: ERROR! ' + res.statusCode);
+			deploy();
+		}
+	});
+
+	monitor.on('down', processError(site));
+
+	monitor.on('error', processError(site));
+
+	monitor.on('stop', function(res) {
+		printStatus(site.name + ' Monitoring stopped');
+	});
+})).then(function() {
+	console.log('Monitoring Started on ' + sites.length.toString() + ' stacks');
 });
 
-cieloMonitor.on('down', processError);
-
-cieloMonitor.on('error', processError);
-
-cieloMonitor.on('stop', function(res) {
-	printStatus('monitoring stopped');
-});
