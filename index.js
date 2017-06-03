@@ -31,13 +31,11 @@ var sites = [{
 
 var sendSMS = function(message) {
 	for (var i = 0; i < phones.length; i++) {
-		/*
 		client.messages.create({
 			body: message,
 			to: phones[i],
 			from: '+12678100051'
 		});
-		*/
 	}
 };
 
@@ -78,7 +76,7 @@ var redeploy = function(site) {
 				headers: {
 					'Authorization': "Bearer " + cloud66APIToken
 				}
-			}, function(err, res, body) { console.log(res.response.message); });
+			}, function(err, res, body) { console.log(res); });
 		}
 	};
 };
