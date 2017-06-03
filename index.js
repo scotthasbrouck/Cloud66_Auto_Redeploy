@@ -7,23 +7,24 @@ const phones = [ process.env.PHONE1, process.env.PHONE2 ];
 const cloud66APIToken = process.env.C66_TOKEN;
 const TwilioSID = process.env.TWILIO_SID;
 const TwilioToken = process.env.TWILIO_TOKEN;
+var client;
 
-var client = new twilio(TwilioSID, TwilioToken);
+if (TwilioSID && TwilioToken) { client = new twilio(TwilioSID, TwilioToken); }
 
-var INTERVAL = parseInt(process.env.INTERVAL || 0.5) / 60;
+var INTERVAL = parseInt(process.env.INTERVAL || 10) / 60;
 
 console.log('Interval: ' + (INTERVAL * 60).toString() + ' seconds');
 
 var sites = [{
 	name: 'Cielo Production',
-	url: 'http://wildebeest.cielo-production-744542.c66.me/',
+	url: 'https://wildebeest.cielo-production-744542.c66.me/uptime',
 	id: '0843b037b04448cb48db8b9253f0881c',
 	status: 'DOWN',
 	deploying: false
 }, {
-	name: 'Cielo Production Failover',
-	url: 'http://starling.cielo-production-failover.c66.me/',
-	id: 'd503cd7fcf917a0f321b384c7724a4b8',
+	name: 'Cielo Production Failover 2',
+	url: 'https://wildebeest.cielo-production-failover-2.c66.me/uptime',
+	id: '150656c6c0a5f2c5ffbe21e8aee14097',
 	status: 'DOWN',
 	deploying: false
 }];
@@ -69,17 +70,15 @@ var redeploy = function(site) {
 	return function() {
 		if (!site.deploying) {
 			site.deploying = true;
-			printStatus(site.name + ' REDEPLOY TRIGGERED');
-			sendSMS(site.name + ' REDEPLOY TRIGGERED');
+			printStatus(site.name + ' RESTART TRIGGERED');
+			sendSMS(site.name + ' RESTART TRIGGERED');
 			request({
 				url: 'https://app.cloud66.com/api/3/stacks/' + site.id + '/deployments',
 				method: 'POST',
 				headers: {
 					'Authorization': "Bearer " + cloud66APIToken
 				}
-			}, function(err, res, body) {
-				console.log(body);
-			});
+			}, function(err, res, body) { console.log(res.response.message); });
 		}
 	};
 };
