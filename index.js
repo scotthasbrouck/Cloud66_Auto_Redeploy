@@ -27,6 +27,12 @@ var sites = [{
 	id: '150656c6c0a5f2c5ffbe21e8aee14097',
 	status: 'DOWN',
 	deploying: false
+}, {
+	name: 'Cielo Production Failover - REDIS TEST',
+	url: 'https://starling.cielo-production-failover.c66.me/uptime',
+	id: 'd503cd7fcf917a0f321b384c7724a4b8',
+	status: 'DOWN',
+	deploying: false
 }];
 
 var sendSMS = function(message) {
