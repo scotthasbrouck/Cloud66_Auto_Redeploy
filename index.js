@@ -21,13 +21,13 @@ var sites = [{
 	id: '0843b037b04448cb48db8b9253f0881c',
 	status: 'DOWN',
 	deploying: false
-}, {
+}/*, {
 	name: 'Cielo Production Failover 2',
 	url: 'https://wildebeest.cielo-production-failover-2.c66.me/uptime',
 	id: '150656c6c0a5f2c5ffbe21e8aee14097',
 	status: 'DOWN',
 	deploying: false
-}, {
+}*/, {
 	name: 'Cielo Production Failover - REDIS TEST',
 	url: 'https://starling.cielo-production-failover.c66.me/uptime',
 	id: 'd503cd7fcf917a0f321b384c7724a4b8',
