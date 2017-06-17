@@ -17,7 +17,7 @@ console.log('Interval: ' + (INTERVAL * 60).toString() + ' seconds');
 
 var sites = [{
 	name: 'Cielo Production',
-	url: 'https://large-elephant.cielo-production-744542.c66.me/',
+	url: 'https://large-elephant.cielo-production-744542.c66.me/uptime',
 	id: '0843b037b04448cb48db8b9253f0881c',
 	status: 'DOWN',
 	deploying: false
