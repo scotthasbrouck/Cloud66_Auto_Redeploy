@@ -82,7 +82,7 @@ var redeploy = function(site) {
 				headers: {
 					'Authorization': "Bearer " + cloud66APIToken
 				}
-			}, function(err, res, body) { console.log(res); });
+			});
 		}
 	};
 };
