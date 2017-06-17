@@ -17,23 +17,23 @@ console.log('Interval: ' + (INTERVAL * 60).toString() + ' seconds');
 
 var sites = [{
 	name: 'Cielo Production',
-	url: 'https://large-elephant.cielo-production-744542.c66.me/uptime',
+	url: 'http://large-elephant.cielo-production-744542.c66.me/uptime',
 	id: '0843b037b04448cb48db8b9253f0881c',
 	status: 'DOWN',
 	deploying: false
-}/*, {
+} /*, {
 	name: 'Cielo Production Failover 2',
 	url: 'https://wildebeest.cielo-production-failover-2.c66.me/uptime',
 	id: '150656c6c0a5f2c5ffbe21e8aee14097',
 	status: 'DOWN',
 	deploying: false
-}*/, {
-	name: 'Cielo Production Failover - REDIS TEST',
-	url: 'https://large-whale.cielo-production-failover.c66.me/uptime',
+}, {
+	name: 'Cielo Production Failover',
+	url: 'https://cielo.purplecloudtech.com/uptime',
 	id: 'd503cd7fcf917a0f321b384c7724a4b8',
 	status: 'DOWN',
 	deploying: false
-}];
+}*/];
 
 var sendSMS = function(message) {
 	for (var i = 0; i < phones.length; i++) {
@@ -94,6 +94,7 @@ B.all(sites.map(function(site) {
 	});
 	var deploy = redeploy(site);
 	monitor.on('up', function(res) {
+		console.log(res);
 		if (res.statusCode === 200) {
 			if (site.status !== 'UP') {
 				sendSMS(site.name + ' UP');
