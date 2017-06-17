@@ -17,7 +17,7 @@ console.log('Interval: ' + (INTERVAL * 60).toString() + ' seconds');
 
 var sites = [{
 	name: 'Cielo Production',
-	url: 'https://wildebeest.cielo-production-744542.c66.me/uptime',
+	url: 'https://large-elephant.cielo-production-744542.c66.me/',
 	id: '0843b037b04448cb48db8b9253f0881c',
 	status: 'DOWN',
 	deploying: false
@@ -29,7 +29,7 @@ var sites = [{
 	deploying: false
 }*/, {
 	name: 'Cielo Production Failover - REDIS TEST',
-	url: 'https://starling.cielo-production-failover.c66.me/uptime',
+	url: 'https://large-whale.cielo-production-failover.c66.me/uptime',
 	id: 'd503cd7fcf917a0f321b384c7724a4b8',
 	status: 'DOWN',
 	deploying: false
